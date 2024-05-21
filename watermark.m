@@ -70,7 +70,7 @@ yuv_after = cat(3, Y, result, V);
 rgb = ycbcr2rgb(yuv_after);
 imwrite(rgb, 'markresult.jpg', 'jpg'); % Simpan gambar yang diberi watermark
 
-subplot(2,3,3), imshow(rgb, []), title('Gambar yang Ditandai Air');
+subplot(2,3,3), imshow(rgb, []), title('Ditandai Air');
 
 % Pemilihan jenis serangan
 disp('Silakan pilih cara menyerang gambar');
@@ -90,7 +90,7 @@ switch choice
         withmark = uint8(result_1);
         subplot(2,3,4);
         imshow(withmark, []);
-        title('Gambar setelah menambahkan white noise');
+        title('white noise');
     case 2
         result_2 = rgb;
         A = result_2(:,:,1);
@@ -102,31 +102,31 @@ switch choice
         result_2 = cat(3, A, B, C);
         subplot(2,3,4);
         imshow(result_2);
-        title('Gambar di atas terpotong');
+        title('terpotong');
         withmark = result_2;
     case 3
         result_3 = rgb;
         result_3 = imrotate(rgb, 10, 'bilinear', 'crop'); 
         subplot(2,3,4);
         imshow(result_3);
-        title('Gambar setelah rotasi 10 derajat');
+        title('rotasi');
         withmark = result_3;
     case 4
         [cA1, cH1, cV1, cD1] = dwt2(rgb, 'Haar'); 
-        cA1 = compress(cA1);
-        cH1 = compress(cH1);
-        cV1 = compress(cV1);
-        cD1 = compress(cD1);
+        cA1 = simple_compress(cA1);
+        cH1 = simple_compress(cH1);
+        cV1 = simple_compress(cV1);
+        cD1 = simple_compress(cD1);
         result_4 = idwt2(cA1, cH1, cV1, cD1, 'Haar');
         result_4 = uint8(result_4);
         subplot(2,3,4);
         imshow(result_4);
-        title('Gambar setelah kompresi wavelet');
+        title('kompresi');
         withmark = result_4;
     case 5
         subplot(2,3,4);
         imshow(rgb, []);
-        title('Gambar tanda air tanpa cetakan');
+        title('tanda air');
         withmark = rgb;
     otherwise
         disp('Pilihan tidak valid, gambar tidak diserang, dan tanda air langsung diekstraksi.');
@@ -158,6 +158,12 @@ for i = 1:rm
 end
 
 subplot(2,3,5);
-imshow(mark_2), title('Tanda air yang diekstraksi');
+imshow(mark_2), title('ekstraksi');
 subplot(2,3,6);
-imshow(mark), title('Tanda air asli yang disematkan');
+imshow(mark), title('sematkan');
+
+% Fungsi kompresi sederhana
+function c = simple_compress(c)
+    threshold = 20; % Nilai threshold yang disesuaikan
+    c(abs(c) < threshold) = 0; % Zeroing out small coefficients
+end
